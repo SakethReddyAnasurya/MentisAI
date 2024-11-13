@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;  /* Light gray background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat {
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-width: 500px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .chat-header {
+            padding: 20px;
+            background: #2f3e46;  /* Dark grayish-blue */
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .chat-body {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+        .chat-body::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-body::-webkit-scrollbar-thumb {
+            background-color: #2f3e46;
+            border-radius: 5px;
+        }
+        .chat-message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            width: fit-content;
+            max-width: 75%;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .chat-message.user {
+            background: #627d98;  /* Soft blue-gray */
+            color: white;
+            align-self: flex-end;
+        }
+        .chat-message.bot {
+            background: #d9e2ec;  /* Light grayish-blue */
+            color: #333;
+            align-self: flex-start;
+        }
+        .chat-footer {
+            padding: 15px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #dee2e6;
+        }
+        .chat-footer input {
+            flex-grow: 1;
+            margin-right: 10px;
+            border-radius: 30px;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            background-color: #f5f7fa;
+        }
+        .chat-footer button {
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: bold;
+            background-color: #2f3e46;
+            color: white;
+            border: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat">
+        <div class="chat-header">Mentis AI</div>
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-footer">
+            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+            <button class="btn" id="send-button">Send</button>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#send-button').click(function () {
+                sendMessage();
+            });
+
+            function sendMessage() {
+                var userMessage = $('#message-input').val().trim();
+                if (userMessage) {
+                    $('#chat-body').append('<div class="chat-message user">' + userMessage + '</div>');
+                    $('#message-input').val("");
+                    $('#chat-body').scrollTop($('#chat-body')[0].scrollHeight);
+
+                    $.ajax({
+                        url: '/chat',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ "message": userMessage }),
+                        success: function (response) {
+                            $('#chat-body').append('<div class="chat-message bot">' + response.response + '</div>');
+                            $('#chat-body').scrollTop($('#chat-body')[0].scrollHeight);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error: " + error);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
